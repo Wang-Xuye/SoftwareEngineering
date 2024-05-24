@@ -26,7 +26,8 @@ public:
 	vector<int> shortestPath(int);
 	string randomBridgeWords(string, string);
     int randomNextNodeIndex(int);
-} G;
+} ;
+Graph G;
 
 extern vector<string> textPreprocess(string);
 extern void showDirectedGraph(string);
