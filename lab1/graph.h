@@ -17,8 +17,10 @@ private:
 	map<pii, int> allEdge;
 	// 以 pair<int, int> 形式存储边，便于查询桥接词，权值表示出现次数
 public:
+	Graph() {}
 	Graph(string);
 	int getVertexNumber();
+	int getEdgeNumber();
 	int findIndex(string);
     string findWord(int);
 	vector<pair<pair<string, string>, int>> getAllEdge();
@@ -27,15 +29,17 @@ public:
 	string randomBridgeWords(string, string);
     int randomNextNodeIndex(int);
 } ;
-Graph G;
+extern Graph G;
 
 extern vector<string> textPreprocess(string);
 extern void showDirectedGraph(string);
 extern string queryBridgeWords(string, string);
 extern string generateNewText(string);
-extern void calcShortestPath(string, string);
-extern void calcShortestPath(string);
+extern void calcShortestPath1(string, string);
+extern void calcShortestPath2(string);
 extern string randomWalk();
 
+extern mt19937 randint;
+extern int randomInt(int l, int r);
 
 #endif

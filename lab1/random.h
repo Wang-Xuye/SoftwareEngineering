@@ -3,7 +3,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-mt19937 randint((unsigned)time(NULL));
-int random_int(int l, int r);
+extern mt19937 randint;
+extern int randomInt(int l, int r);
 
 #endif
