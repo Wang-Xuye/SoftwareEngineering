@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     }
     G = Graph(path);
     
-    // system("clear");
+    system("clear");
     cerr << "Introduction: " << endl;
     cerr << "graph: Show digraph" << endl;
     cerr << "bridge word1 word2: Look for bridge words" << endl;
