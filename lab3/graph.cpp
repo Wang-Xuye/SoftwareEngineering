@@ -1,191 +1,202 @@
-#include <bits/stdc++.h>
-#include "graph.h"
-#include "random.h"
+// Copyright 2024 wangxuye
+
+#include <functional>
+#include <queue>
+#include <set>
+#include "include/graph.h"
+#include "include/random.h"
 
 Graph G;
 extern int randomInt(int l, int r);
 
 
-vector<string> textPreprocess(string str) {
-    // ÎÄ±¾Ô¤´¦Àíº¯Êı£º 
-    // ÊäÈëÒ»¸ö×Ö·û´®£¬°üº¬ÓÃÓ¢ÎÄÊéĞ´µÄÎÄ±¾Êı¾İ
-    // ÎÄ±¾·ÖÎª¶àĞĞ
-    // »»ĞĞ·ûµ±×÷¿Õ¸ñ´¦Àí
-    // ±êµã·ûºÅµ±×÷¿Õ¸ñ´¦Àí
-    // ºöÂÔ·Ç×ÖÄ¸×Ö·û£¨µ±×÷¿Õ¸ñ´¦Àí£©
-    // ·µ»ØÖµÎªµ¥´ÊĞòÁĞ
-    vector<string> wordList;
-    string tmp = "";
-    for(auto ch : str) {
-        if('a' <= ch && ch <= 'z') tmp += ch;
-        else if('A' <= ch && ch <= 'Z') tmp += (char)(ch - 'A' + 'a');
-        else if(tmp.size()) wordList.pb(tmp), tmp = "";
+std::vector<std::string> textPreprocess(const std::string& str) {
+    // æ–‡æœ¬é¢„å¤„ç†å‡½æ•°ï¼š
+    // è¾“å…¥ä¸€ä¸ªå­—ç¬¦ä¸²ï¼ŒåŒ…å«ç”¨è‹±æ–‡ä¹¦å†™çš„æ–‡æœ¬æ•°æ®
+    // æ–‡æœ¬åˆ†ä¸ºå¤šè¡Œ
+    // æ¢è¡Œç¬¦å½“ä½œç©ºæ ¼å¤„ç†
+    // æ ‡ç‚¹ç¬¦å·å½“ä½œç©ºæ ¼å¤„ç†
+    // å¿½ç•¥éå­—æ¯å­—ç¬¦ï¼ˆå½“ä½œç©ºæ ¼å¤„ç†ï¼‰
+    // è¿”å›å€¼ä¸ºå•è¯åºåˆ—
+    std::vector<std::string> wordList;
+    std::string tmp = "";
+    for (auto ch : str) {
+        if ('a' <= ch && ch <= 'z')
+            tmp += ch;
+        else if ('A' <= ch && ch <= 'Z')
+            tmp += static_cast<char>(ch - 'A' + 'a');
+        else if (tmp.size())
+            wordList.pb(tmp), tmp = "";
     }
-    if(tmp.size()) wordList.pb(tmp);
+    if (tmp.size()) wordList.pb(tmp);
     return wordList;
 }
 
-Graph::Graph(string path = "") {
-    // ÓĞÏòÍ¼¹¹Ôìº¯Êı£º 
-    // ÊäÈëÎª×Ö·û´®£¬°üº¬ÊäÈëÎÄ¼şÂ·¾¶
-    // Í¨¹ıÊäÈëÎÄ¼şÖĞµÄÎÄ±¾¹¹ÔìÓĞÏòÍ¼
-    if(path == "") return ;
-    ifstream file(path);
-    if(!file.is_open()) {
-        cerr << "Error: File not open! " << endl;
-        return ;
+Graph::Graph(const std::string& path = "") {
+    // æœ‰å‘å›¾æ„é€ å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºå­—ç¬¦ä¸²ï¼ŒåŒ…å«è¾“å…¥æ–‡ä»¶è·¯å¾„
+    // é€šè¿‡è¾“å…¥æ–‡ä»¶ä¸­çš„æ–‡æœ¬æ„é€ æœ‰å‘å›¾
+    if (path == "") return;
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "Error: File not open! " << std::endl;
+        return;
     }
 
-    this -> Index.clear();
-    this -> Vertex.clear();
-    this -> Edge.clear();
-    this -> allEdge.clear();
-    this -> vertexNumber = 0;
-    this -> edgeNumber = 0;
+    this->Index.clear();
+    this->Vertex.clear();
+    this->Edge.clear();
+    this->allEdge.clear();
+    this->vertexNumber = 0;
+    this->edgeNumber = 0;
 
-    stringstream buffer;
+    std::stringstream buffer;
     buffer << file.rdbuf();
-    string content = buffer.str();
-    vector<string> wordList = textPreprocess(content);
+    std::string content = buffer.str();
+    std::vector<std::string> wordList = textPreprocess(content);
 
-    for(auto str : wordList) {
-        if(this -> Index.find(str) == this -> Index.end()) {
-            this -> Index[str] = this -> vertexNumber;
-            this -> Vertex.pb(str);
-            this -> vertexNumber++;
+    for (auto str : wordList) {
+        if ((this->Index.try_emplace(str, this->vertexNumber)).second) {
+            this->Vertex.pb(str);
+            this->vertexNumber++;
         }
     }
-    for(int i = 0, edgeSize = wordList.size(); i < edgeSize - 1; i++) {
-        this -> allEdge[mp(this -> Index[wordList[i]], 
-            this -> Index[wordList[i + 1]])]++;
+    for (int i = 0, edgeSize = wordList.size(); i < edgeSize - 1; i++) {
+        this->allEdge[mp(this->Index[wordList[i]],
+            this->Index[wordList[i + 1]])]++;
     }
 
-    this -> Edge.resize(this -> vertexNumber);
-    this -> edgeNumber = this -> allEdge.size();
-    for(auto [edge, value] : this -> allEdge) {
+    this->Edge.resize(this->vertexNumber);
+    this->edgeNumber = this->allEdge.size();
+    for (auto [edge, value] : this->allEdge) {
         auto [from, to] = edge;
-        this -> Edge[from].pb(mp(to, value));
+        this->Edge[from].pb(mp(to, value));
     }
 }
 
 int Graph::getVertexNumber() {
-    return this -> vertexNumber;
-}
-int Graph::getEdgeNumber() {
-    return this -> edgeNumber;
+    return this->vertexNumber;
 }
 
-int Graph::findIndex(string word) {
-    // ²éÑ¯±àºÅº¯Êı£º 
-    // ÊäÈëÎªÒ»¸öµ¥´Ê
-    // ·µ»ØÖµÎª¸Ãµ¥´Ê¶ÔÓ¦µÄ±àºÅ
-    // Èô²»´æÔÚÔò·µ»Ø -1
-    if(this -> Index.find(word) == this -> Index.end())
+int Graph::findIndex(const std::string& word) {
+    // æŸ¥è¯¢ç¼–å·å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºä¸€ä¸ªå•è¯
+    // è¿”å›å€¼ä¸ºè¯¥å•è¯å¯¹åº”çš„ç¼–å·
+    // è‹¥ä¸å­˜åœ¨åˆ™è¿”å› -1
+    if (this->Index.find(word) == this->Index.end())
         return -1;
-    else return this -> Index[word];
+    else
+        return this->Index[word];
 }
-string Graph::findWord(int index) {
-    // ²éÑ¯µ¥´Êº¯Êı£º 
-    // ÊäÈëÎªÒ»¸ö±àºÅ
-    // ·µ»ØÖµÎª¸Ã±àºÅ¶ÔÓ¦µÄµ¥´Ê
-    // Èô²»´æÔÚÔò·µ»Ø¿Õ´®
-    if(index < 0 || index >= this -> vertexNumber) return "";
-    else return this -> Vertex[index];
+std::string Graph::findWord(int index) {
+    // æŸ¥è¯¢å•è¯å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºä¸€ä¸ªç¼–å·
+    // è¿”å›å€¼ä¸ºè¯¥ç¼–å·å¯¹åº”çš„å•è¯
+    // è‹¥ä¸å­˜åœ¨åˆ™è¿”å›ç©ºä¸²
+    if (index < 0 || index >= this->vertexNumber)
+        return "";
+    else
+        return this->Vertex[index];
 }
 
-vector<pair<pair<string, string>, int>> Graph::getAllEdge() {
-    // »ñÈ¡ËùÓĞ±ßº¯Êı: 
-    // ·µ»ØÖµÎªËùÓĞ±ßµÄ from, to ºÍ value
-    vector<pair<pair<string, string>, int>> edge;
-    for(auto [e, value] : this -> allEdge) {
+std::vector<edgeString> Graph::getAllEdge() {
+    // è·å–æ‰€æœ‰è¾¹å‡½æ•°ï¼š
+    // è¿”å›å€¼ä¸ºæ‰€æœ‰è¾¹çš„ from, to å’Œ value
+    std::vector<edgeString> edge;
+    for (auto [e, value] : this->allEdge) {
         auto [from, to] = e;
         edge.pb(mp(mp(
-            this -> Vertex[from], this -> Vertex[to]), value));
+            this->Vertex[from], this->Vertex[to]), value));
     }
     return edge;
 }
 
-vector<string> Graph::findBridgeWords(
-    string word1, string word2) {
-    // ²éÑ¯ÇÅ½Ó´Êº¯Êı£º 
-    // ÊäÈëÎª²éÑ¯ÇÅ½Ó´ÊµÄÁ½¸öµ¥´Ê
-    // ·µ»ØÖµÎªÇÅ½Ó´ÊĞòÁĞ
-    int index1 = this -> Index[word1];
-    int index2 = this -> Index[word2];
-    if(index1 == -1 || index2 == -1) return vector<string>();
-    vector<string> wordList;
-    for(int i = 0; i < this -> vertexNumber; i++) {
-        if(this -> allEdge.find(mp(index1, i)) != this -> allEdge.end() && 
-            this -> allEdge.find(mp(i, index2)) != this -> allEdge.end()) {
-                wordList.pb(this -> Vertex[i]);
+std::vector<std::string> Graph::findBridgeWords(
+    const std::string& word1, const std::string& word2) {
+    // æŸ¥è¯¢æ¡¥æ¥è¯å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºæŸ¥è¯¢æ¡¥æ¥è¯çš„ä¸¤ä¸ªå•è¯
+    // è¿”å›å€¼ä¸ºæ¡¥æ¥è¯åºåˆ—
+    int index1 = this->Index[word1];
+    int index2 = this->Index[word2];
+    if (index1 == -1 || index2 == -1) return std::vector<std::string>();
+    std::vector<std::string> wordList;
+    for (int i = 0; i < this->vertexNumber; i++) {
+        if (this->allEdge.find(mp(index1, i)) != this->allEdge.end() &&
+            this->allEdge.find(mp(i, index2)) != this->allEdge.end()) {
+                wordList.pb(this->Vertex[i]);
             }
     }
     return wordList;
 }
 
-string Graph::randomBridgeWords(string word1, string word2) {
-    vector<string> wordList = this -> findBridgeWords(word1, word2);
-    if(!wordList.size()) return "";
-    else return wordList[randomInt(0, wordList.size() - 1)];
+std::string Graph::randomBridgeWords(
+    const std::string& word1, const std::string& word2) {
+    std::vector<std::string> wordList = this->findBridgeWords(word1, word2);
+    if (!wordList.size())
+        return "";
+    else
+        return wordList[randomInt(0, wordList.size() - 1)];
 }
 
-void showDirectedGraph(string path) {
-    // Õ¹Ê¾ÓĞÏòÍ¼º¯Êı£º
-    // ÊäÈëÎªÓĞÏòÍ¼ºÍÊä³öÎÄ¼şÂ·¾¶
-    // Ê¹ÓÃ graphviz ¿â»æÖÆÓĞÏòÍ¼
-    // ½«»æÖÆµÄÓĞÏòÍ¼±£´æÔÚ path ÖĞ
-    ofstream out("tmp.dot", ios::out);
-	out << "digraph G {" << endl;
+void showDirectedGraph(const std::string& path) {
+    // å±•ç¤ºæœ‰å‘å›¾å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºæœ‰å‘å›¾å’Œè¾“å‡ºæ–‡ä»¶è·¯å¾„
+    // ä½¿ç”¨ graphviz åº“ç»˜åˆ¶æœ‰å‘å›¾
+    // å°†ç»˜åˆ¶çš„æœ‰å‘å›¾ä¿å­˜åœ¨ path ä¸­
+    std::ofstream out("tmp.dot", std::ios::out);
+    out << "digraph G {" << std::endl;
 
     auto allEdge = G.getAllEdge();
-    for(auto [edge, value] : allEdge) {
+    for (auto [edge, value] : allEdge) {
         auto [from, to] = edge;
-        out << "\t" << from << " -> " << to
-            << " [label = " << value << "];" << endl;
+        out << "\t" << from << "->" << to
+            << " [label = " << value << "];" << std::endl;
     }
-	out << "}" << endl;
-	out.close();
+    out << "}" << std::endl;
+    out.close();
 
-	string tmp = "dot -Tpng tmp.dot -o " + path;
-	system(tmp.c_str());
-	remove("tmp.dot");
+    std::string tmp = "dot -Tpng tmp.dot -o " + path;
+    system(tmp.c_str());
+    remove("tmp.dot");
 }
 
-string queryBridgeWords(string word1, 
-    string word2) {
-    // ²éÑ¯ÇÅ½Ó´Êº¯Êı£º 
-    // ÊäÈëÎªÓĞÏòÍ¼ºÍ²éÑ¯ÇÅ½Ó´ÊµÄÁ½¸öµ¥´Ê
-    // ·µ»ØÖµÎªÇÅ½Ó´Ê²éÑ¯½á¹û
+std::string connect(const std::string& acc, const std::string& num) {
+    return acc + num + ", ";
+}
+std::string queryBridgeWords(const std::string& word1,
+    const std::string& word2) {
+    // æŸ¥è¯¢æ¡¥æ¥è¯å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºæœ‰å‘å›¾å’ŒæŸ¥è¯¢æ¡¥æ¥è¯çš„ä¸¤ä¸ªå•è¯
+    // è¿”å›å€¼ä¸ºæ¡¥æ¥è¯æŸ¥è¯¢ç»“æœ
     int index1 = G.findIndex(word1), index2 = G.findIndex(word2);
-    string tmp = "";
-    if(index1 == -1 || index2 == -1) {
-        if(index1 == -1 && index2 == -1) {
-            tmp = "No \'" + word1 + "\' and \'" 
+    std::string tmp = "";
+    if (index1 == -1 || index2 == -1) {
+        if (index1 == -1 && index2 == -1) {
+            tmp = "No \'" + word1 + "\' and \'"
                 + word2 + "\' in the graph! ";
-        }
-        else if(index1 == -1) {
+        } else if (index1 == -1) {
             tmp = "No \'" + word1 + "\' in the graph! ";
-        }
-        else if(index2 == -1) {
+        } else if (index2 == -1) {
             tmp = "No \'" + word2 + "\' in the graph! ";
         }
-    }
-    else {
+    } else {
         auto wordList = G.findBridgeWords(word1, word2);
-        switch(wordList.size()) {
-            case 0: 
-                tmp = "No bridge words from \'" 
+        switch (wordList.size()) {
+            case 0:
+                tmp = "No bridge words from \'"
                     + word1 + "\' to \'" + word2 + "\'! ";
                 break;
-            case 1: 
-                tmp = "The bridge word from \'" 
-                    + word1 + "\' to \'" + word2 
+            case 1:
+                tmp = "The bridge word from \'"
+                    + word1 + "\' to \'" + word2
                     + "\' is: " + wordList[0] + ". ";
                 break;
-            default: 
-                tmp = "The bridge words from \'" 
+            default:
+                tmp = "The bridge words from \'"
                     + word1 + "\' to \'" + word2 + "\' are: ";
-                for(auto word : wordList) tmp += word + ", ";
+                // for (auto word : wordList) tmp += word + ", ";
+                tmp = std::accumulate(wordList.begin(),
+                        wordList.end(), tmp, connect);
                 tmp[tmp.size() - 2] = '.';
                 break;
         }
@@ -193,32 +204,32 @@ string queryBridgeWords(string word1,
     return tmp;
 }
 
-string generateNewText(string path) {
-    // ¸ù¾İÇÅ½Ó´ÊÉú³ÉĞÂÎÄ±¾º¯Êı£º 
-    // ÊäÈëÎªÎÄ±¾´®Â·¾¶
-    // Èç¹ûÁ½¸öµ¥´ÊÎŞÇÅ½Ó´Ê£¬Ôò±£³Ö²»±ä
-    // Èç¹ûÁ½¸öµ¥´ÊÖ®¼ä´æÔÚ¶à¸öÇÅ½Ó´Ê£¬
-    // ÔòËæ»ú´ÓÖĞÑ¡ÔñÒ»¸ö²åÈë½øÈ¥ĞÎ³ÉĞÂÎÄ±¾
-    // ·µ»ØÖµÎªĞÂÉú³ÉµÄÎÄ±¾´®
+std::string generateNewText(const std::string& path) {
+    // æ ¹æ®æ¡¥æ¥è¯ç”Ÿæˆæ–°æ–‡æœ¬å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºæ–‡æœ¬ä¸²è·¯å¾„
+    // å¦‚æœä¸¤ä¸ªå•è¯æ— æ¡¥æ¥è¯ï¼Œåˆ™ä¿æŒä¸å˜
+    // å¦‚æœä¸¤ä¸ªå•è¯ä¹‹é—´å­˜åœ¨å¤šä¸ªæ¡¥æ¥è¯ï¼Œ
+    // åˆ™éšæœºä»ä¸­é€‰æ‹©ä¸€ä¸ªæ’å…¥è¿›å»å½¢æˆæ–°æ–‡æœ¬
+    // è¿”å›å€¼ä¸ºæ–°ç”Ÿæˆçš„æ–‡æœ¬ä¸²
 
-    ifstream file(path);
-    if(!file.is_open()) {
-        cerr << "Error: File not open! " << endl;
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "Error: File not open! " << std::endl;
         return "";
     }
 
-    stringstream buffer;
+    std::stringstream buffer;
     buffer << file.rdbuf();
-    string content = buffer.str();
-    vector<string> wordList = textPreprocess(content);
+    std::string content = buffer.str();
+    std::vector<std::string> wordList = textPreprocess(content);
 
-    string output = "";
-    for(int i = 0, wordNumber = wordList.size(); i < wordNumber; i++) {
+    std::string output = "";
+    for (int i = 0, wordNumber = wordList.size(); i < wordNumber; i++) {
         output += wordList[i];
-        if(i < wordNumber - 1) {
-            string bridgeWord = G.randomBridgeWords(
+        if (i < wordNumber - 1) {
+            std::string bridgeWord = G.randomBridgeWords(
                 wordList[i], wordList[i + 1]);
-            if(bridgeWord != "") output += " " + bridgeWord;
+            if (bridgeWord != "") output += " " + bridgeWord;
             output += " ";
         }
     }
@@ -226,21 +237,21 @@ string generateNewText(string path) {
 }
 
 
-vector<int> Graph::shortestPath(int index) {
-    // Çó×î¶ÌÂ·º¯Êı£º 
-    // ÊäÈëÎªÆğµãµ¥´Ê±àºÅ
-    // ·µ»ØÖµÎªÆğµãµ¥´Êµ½¸÷¸öµ¥´ÊµÄ×î¶ÌÂ·³¤¶È
-    vector<int> dis(this -> vertexNumber, -1);
+std::vector<int> Graph::shortestPath(int index) {
+    // æ±‚æœ€çŸ­è·¯å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºèµ·ç‚¹å•è¯ç¼–å·
+    // è¿”å›å€¼ä¸ºèµ·ç‚¹å•è¯åˆ°å„ä¸ªå•è¯çš„æœ€çŸ­è·¯é•¿åº¦
+    std::vector<int> dis(this->vertexNumber, -1);
     dis[index] = 0;
-    priority_queue<pii, vector<pii>, greater<pii>> q;
+    std::priority_queue<pii, std::vector<pii>, std::greater<pii>> q;
     q.push(mp(0, index));
-    vector<bool> vis(this -> vertexNumber, false);
-    while(q.size()) {
+    std::vector<bool> vis(this->vertexNumber, false);
+    while (q.size()) {
         auto [d, x] = q.top(); q.pop();
-        if(vis[x]) continue;
-        vis[x]=true;
-        for(auto [y, z] : this -> Edge[x]) {
-            if(dis[y] == -1 || dis[x] + z < dis[y]) {
+        if (vis[x]) continue;
+        vis[x] = true;
+        for (auto [y, z] : this->Edge[x]) {
+            if (dis[y] == -1 || dis[x] + z < dis[y]) {
                 dis[y] = dis[x] + z;
                 q.push(mp(dis[y], y));
             }
@@ -248,150 +259,150 @@ vector<int> Graph::shortestPath(int index) {
     }
     return dis;
 }
-void calcShortestPath1(string word1, string word2) {
-    // ¼ÆËãÁ½¸öµ¥´ÊÖ®¼äµÄ×î¶ÌÂ·¾¶º¯Êı£º 
-    // ÊäÈëÎªÁ½¸öµ¥´Ê
-    // ÌáÊ¾Á½¸öµ¥´Ê²»¿É´ï
-    // »òÕßÔÚÎÄ¼ş shortestPath.txt ÖĞÊä³öËùÓĞ×î¶ÌÂ·
-    // ²¢ÇÒÔÚÍ¼Æ¬ shortestPath.png Õ¹Ê¾ÆäÖĞÒ»Ìõ
+void calcShortestPath1(const std::string& word1, const std::string& word2) {
+    // è®¡ç®—ä¸¤ä¸ªå•è¯ä¹‹é—´çš„æœ€çŸ­è·¯å¾„å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºä¸¤ä¸ªå•è¯
+    // æç¤ºä¸¤ä¸ªå•è¯ä¸å¯è¾¾
+    // æˆ–è€…åœ¨æ–‡ä»¶ shortestPath.txt ä¸­è¾“å‡ºæ‰€æœ‰æœ€çŸ­è·¯
+    // å¹¶ä¸”åœ¨å›¾ç‰‡ shortestPath.png å±•ç¤ºå…¶ä¸­ä¸€æ¡
     int index1 = G.findIndex(word1);
     int index2 = G.findIndex(word2);
-    if(index1 == -1 || index2 == -1) {
-        cerr << "unreachable" << endl;
-        return ;
+    if (index1 == -1 || index2 == -1) {
+        std::cerr << "unreachable" << std::endl;
+        return;
     }
 
-    vector<int> dis = G.shortestPath(index1);
-    if(dis[index2] == -1) {
-        cerr << "unreachable" << endl;
-        return ;
+    std::vector<int> dis = G.shortestPath(index1);
+    if (dis[index2] == -1) {
+        std::cerr << "unreachable" << std::endl;
+        return;
     }
-    vector<vector<int>> pre(G.getVertexNumber(), vector<int>());
+    std::vector<std::vector<int>> pre(G.getVertexNumber(), std::vector<int>());
     auto allEdge = G.getAllEdge();
-    for(auto [edge, value] : allEdge) {
+    for (auto [edge, value] : allEdge) {
         auto [fromWord, toWord] = edge;
         int from = G.findIndex(fromWord);
         int to = G.findIndex(toWord);
-        if(dis[from] + value == dis[to]) pre[to].pb(from);
+        if (dis[from] + value == dis[to]) pre[to].pb(from);
     }
-    
-    // ¼ÇÂ¼ËùÓĞÂ·¾¶µ½ shortestPath.txt
-    ofstream out("shortestPath.txt", ios::out);
-    out << "Shortest Path from \'" << word1 
-        << "\' to \'" << word2 << "\': " << endl;
-    
-    function<void(int, string)> getShortestPath = [&](
-        int now, string path) -> void {
-        if(now == index1) {
-            out << path << endl;
-            return ;
+
+    // è®°å½•æ‰€æœ‰è·¯å¾„åˆ° shortestPath.txt
+    std::ofstream out("shortestPath.txt", std::ios::out);
+    out << "Shortest Path from \'" << word1
+        << "\' to \'" << word2 << "\': " << std::endl;
+
+    std::function<void(int, const std::string&)> getShortestPath = [&](
+        int now, const std::string& path)->void {
+        if (now == index1) {
+            out << path << std::endl;
+            return;
         }
-        for(auto lst : pre[now]) {
-            getShortestPath(lst, G.findWord(lst) + " -> " + path);
+        for (auto lst : pre[now]) {
+            getShortestPath(lst, G.findWord(lst) + "->" + path);
         }
     };
     getShortestPath(index2, word2);
 
     out.close();
 
-    // Õ¹Ê¾ÆäÖĞÒ»ÌõÂ·¾¶µ½ shortestPath.png
-    ofstream ouf("tmp.dot", ios::out);
-	ouf << "digraph G {" << endl;
+    // å±•ç¤ºå…¶ä¸­ä¸€æ¡è·¯å¾„åˆ° shortestPath.png
+    std::ofstream ouf("tmp.dot", std::ios::out);
+    ouf << "digraph G {" << std::endl;
 
-    set<pii> path;
-    for(int now = index2, lst; now != index1; now = lst) {
+    std::set<pii> path;
+    for (int now = index2, lst; now != index1; now = lst) {
         lst = pre[now][0];
         path.insert(mp(lst, now));
     }
-    for(auto [edge, value] : allEdge) {
+    for (auto [edge, value] : allEdge) {
         auto [fromWord, toWord] = edge;
         int from = G.findIndex(fromWord);
         int to = G.findIndex(toWord);
-        if(path.find(mp(from, to)) == path.end()) 
-            ouf << fromWord << " -> " << toWord << " [label = " 
-                << value << "];" << endl;
-        else 
-            ouf << fromWord << " -> " << toWord << " [label = " 
-                << value << ", color = red];" << endl;
+        if (path.find(mp(from, to)) == path.end())
+            ouf << fromWord << "->" << toWord << " [label = "
+                << value << "];" << std::endl;
+        else
+            ouf << fromWord << "->" << toWord << " [label = "
+                << value << ", color = red];" << std::endl;
     }
-    ouf << "}" << endl;
+    ouf << "}" << std::endl;
     ouf.close();
-    
-	string tmp = "dot -Tpng tmp.dot -o shortestPath.png";
-	system(tmp.c_str());
-	remove("tmp.dot");
+
+    std::string tmp = "dot -Tpng tmp.dot -o shortestPath.png";
+    system(tmp.c_str());
+    remove("tmp.dot");
 }
-void calcShortestPath2(string word) {
-    // ¼ÆËãµ¥´Êµ½ËùÓĞµ¥´ÊµÄ×î¶ÌÂ·¾¶º¯Êı£º 
-    // ÊäÈëÎªÒ»¸öµ¥´Ê
-    // ÔÚÎÄ¼ş shortestPathAll.txt ÖĞÊä³öËùÓĞ×î¶ÌÂ·
+void calcShortestPath2(const std::string& word) {
+    // è®¡ç®—å•è¯åˆ°æ‰€æœ‰å•è¯çš„æœ€çŸ­è·¯å¾„å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºä¸€ä¸ªå•è¯
+    // åœ¨æ–‡ä»¶ shortestPathAll.txt ä¸­è¾“å‡ºæ‰€æœ‰æœ€çŸ­è·¯
     int index = G.findIndex(word);
-    if(index == -1) {
-        cerr << "Word not exists" << endl;
-        return ;
+    if (index == -1) {
+        std::cerr << "Word not exists" << std::endl;
+        return;
     }
 
-    vector<int> dis = G.shortestPath(index);
-    vector<vector<int>> pre(G.getVertexNumber(), vector<int>());
+    std::vector<int> dis = G.shortestPath(index);
+    std::vector<std::vector<int>> pre(G.getVertexNumber(), std::vector<int>());
     auto allEdge = G.getAllEdge();
-    for(auto [edge, value] : allEdge) {
+    for (auto [edge, value] : allEdge) {
         auto [fromWord, toWord] = edge;
         int from = G.findIndex(fromWord);
         int to = G.findIndex(toWord);
-        if(dis[from] + value == dis[to]) pre[to].pb(from);
+        if (dis[from] + value == dis[to]) pre[to].pb(from);
     }
 
 
-    ofstream out("shortestPathAll.txt", ios::out);
+    std::ofstream out("shortestPathAll.txt", std::ios::out);
 
-    function<void(int, string)> getShortestPath = [&](
-        int now, string path) -> void {
-        if(now == index) {
-            out << path << endl;
-            return ;
+    std::function<void(int, const std::string&)> getShortestPath = [&](
+        int now, const std::string& path)->void {
+        if (now == index) {
+            out << path << std::endl;
+            return;
         }
-        for(auto lst : pre[now]) {
-            getShortestPath(lst, G.findWord(lst) + " -> " + path);
+        for (auto lst : pre[now]) {
+            getShortestPath(lst, G.findWord(lst) + "->" + path);
         }
     };
 
-    for(int i = 0, n = G.getVertexNumber(); i < n; i++) {
-        if(i == index) continue;
-        string word2 = G.findWord(i);
-        out << "Shortest Path from \'" << word 
-            << "\' to \'" << word2 << "\': " << endl;
+    for (int i = 0, n = G.getVertexNumber(); i < n; i++) {
+        if (i == index) continue;
+        std::string word2 = G.findWord(i);
+        out << "Shortest Path from \'" << word
+            << "\' to \'" << word2 << "\': " << std::endl;
         getShortestPath(i, word2);
-        out << endl;
+        out << std::endl;
     }
     out.close();
 }
 
 
 int Graph::randomNextNodeIndex(int index) {
-    // Ëæ»úÈ¡ÏÂÒ»¸öµ¥´Ê±àºÅº¯Êı£º 
-    // ÊäÈëÎªµ±Ç°µ¥´Ê±àºÅ
-    // ÔÚÕâ¸öµ¥´ÊËùÓĞ³ö±ßÖĞËæ»úÑ¡ÔñÒ»Ìõ³ö±ß
-    // ·µ»ØÖµÎªÑ¡ÖĞµÄ³ö±ßÖ¸ÏòµÄµ¥´ÊµÄ±àºÅ
-    // ÈôÃ»ÓĞ³ö±ß£¬Ôò·µ»Ø -1
-    if(!Edge[index].size()) return -1;
+    // éšæœºå–ä¸‹ä¸€ä¸ªå•è¯ç¼–å·å‡½æ•°ï¼š
+    // è¾“å…¥ä¸ºå½“å‰å•è¯ç¼–å·
+    // åœ¨è¿™ä¸ªå•è¯æ‰€æœ‰å‡ºè¾¹ä¸­éšæœºé€‰æ‹©ä¸€æ¡å‡ºè¾¹
+    // è¿”å›å€¼ä¸ºé€‰ä¸­çš„å‡ºè¾¹æŒ‡å‘çš„å•è¯çš„ç¼–å·
+    // è‹¥æ²¡æœ‰å‡ºè¾¹ï¼Œåˆ™è¿”å› -1
+    if (!Edge[index].size()) return -1;
     return Edge[index][randomInt(0, Edge[index].size() - 1)].first;
 }
-string randomWalk() {
-    // Ëæ»úÓÎ×ßº¯Êı£º 
-    // ³ÌĞòËæ»úµÄ´ÓÍ¼ÖĞÑ¡ÔñÒ»¸ö½Úµã£¬
-    // ÒÔ´ËÎªÆğµãÑØ³ö±ß½øĞĞËæ»ú±éÀú£¬
-    // ¼ÇÂ¼¾­¹ıµÄËùÓĞ½ÚµãºÍ±ß£¬
-    // Ö±µ½³öÏÖµÚÒ»ÌõÖØ¸´µÄ±ßÎªÖ¹£¬
-    // »òÕß½øÈëµÄÄ³¸ö½Úµã²»´æÔÚ³ö±ßÎªÖ¹¡£
-    // ÔÚ±éÀú¹ı³ÌÖĞ£¬ÓÃ»§Ò²¿ÉËæÊ±Í£Ö¹±éÀú¡£
+std::string randomWalk() {
+    // éšæœºæ¸¸èµ°å‡½æ•°ï¼š
+    // ç¨‹åºéšæœºçš„ä»å›¾ä¸­é€‰æ‹©ä¸€ä¸ªèŠ‚ç‚¹ï¼Œ
+    // ä»¥æ­¤ä¸ºèµ·ç‚¹æ²¿å‡ºè¾¹è¿›è¡Œéšæœºéå†ï¼Œ
+    // è®°å½•ç»è¿‡çš„æ‰€æœ‰èŠ‚ç‚¹å’Œè¾¹ï¼Œ
+    // ç›´åˆ°å‡ºç°ç¬¬ä¸€æ¡é‡å¤çš„è¾¹ä¸ºæ­¢ï¼Œ
+    // æˆ–è€…è¿›å…¥çš„æŸä¸ªèŠ‚ç‚¹ä¸å­˜åœ¨å‡ºè¾¹ä¸ºæ­¢ã€‚
+    // åœ¨éå†è¿‡ç¨‹ä¸­ï¼Œç”¨æˆ·ä¹Ÿå¯éšæ—¶åœæ­¢éå†ã€‚
     int index = randomInt(0, G.getVertexNumber() - 1);
-    string walkList = G.findWord(index);
-    set<pii> edgeExist;
-    while(1) {
+    std::string walkList = G.findWord(index);
+    std::set<pii> edgeExist;
+    while (1) {
         int nextIndex = G.randomNextNodeIndex(index);
-        if(nextIndex == -1) break;
-        walkList += " -> " + G.findWord(nextIndex);
-        if(edgeExist.find(mp(index, nextIndex)) 
+        if (nextIndex == -1) break;
+        walkList += "->" + G.findWord(nextIndex);
+        if (edgeExist.find(mp(index, nextIndex))
             != edgeExist.end()) break;
         edgeExist.insert(mp(index, nextIndex));
         index = nextIndex;

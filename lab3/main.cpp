@@ -1,76 +1,77 @@
-#include <bits/stdc++.h>
-#include "random.h"
-#include "graph.h"
-using namespace std;
+// Copyright 2024 wangxuye
+
+#include "include/random.h"
+#include "include/graph.h"
 
 extern Graph G;
 
 int main(int argc, char* argv[]) {
-    if(argc != 1) {
+    if (argc != 1) {
         perror("parameters error\n");
         exit(1);
     }
-    cerr << "Please input the path of the content file: ";
-    // cerr << "ÇëÊäÈëÎÄ±¾´®ËùÔÚÎÄ¼þÂ·¾¶£º";
-    string path; cin >> path;
-    while(1) {
-        ifstream file(path);
-        if(file.is_open()) break;
-        cerr << "Please reinput the path of the content file: ";
-        // cerr << "ÇëÖØÐÂÊäÈëÎÄ±¾´®ËùÔÚÎÄ¼þÂ·¾¶£º";
-        cin >> path;
+    std::cerr << "Please input the path of the content file: ";
+    // std::cerr << "è¯·è¾“å…¥æ–‡æœ¬ä¸²æ‰€åœ¨æ–‡ä»¶è·¯å¾„ï¼š";
+    std::string path; std::cin >> path;
+    while (1) {
+        std::ifstream file(path);
+        if (file.is_open()) break;
+        std::cerr << "Please reinput the path of the content file: ";
+        // std::cerr << "è¯·é‡æ–°è¾“å…¥æ–‡æœ¬ä¸²æ‰€åœ¨æ–‡ä»¶è·¯å¾„ï¼š";
+        std::cin >> path;
     }
     G = Graph(path);
-    
-    system("clear");
-    cerr << "Introduction: " << endl;
-    cerr << "graph: Show digraph" << endl;
-    cerr << "bridge word1 word2: Look for bridge words" << endl;
-    cerr << "generate path: generate new content according to bridge words" << endl;
-    cerr << "short1 word1 word2: Look for the shortest path between two words" << endl;
-    cerr << "short2 word: Look for the shortest path from the word to other words" << endl;
-    cerr << "walk: Random walk" << endl;
-    cerr << "exit: Exit" << endl;
-    // cerr << "¹¦ÄÜ½éÉÜ£º" << endl;
-    // cerr << "graph: ²é¿´ÓÐÏòÍ¼" << endl;
-    // cerr << "bridge word1 word2: ²éÑ¯ÇÅ½Ó´Ê" << endl;
-    // cerr << "generate path: ¸ù¾ÝÇÅ½Ó´ÊÉú³ÉÎÄ±¾" << endl;
-    // cerr << "short1 word1 word2: ²éÑ¯Á½¸öµ¥´ÊÖ®¼äµÄ×î¶ÌÂ·¾¶" << endl;
-    // cerr << "short2 word: ²éÑ¯µ¥´Êµ½ËùÓÐµ¥´ÊµÄ×î¶ÌÂ·¾¶" << endl;
-    // cerr << "walk: Ëæ»úÓÎ×ß" << endl;
-    // cerr << "exit: ÍË³ö" << endl;
 
-    string cmd;
-    while(1) {
-        cerr << ">>> ";
-        cin >> cmd;
-        if(cmd == "exit") break;
-        else if(cmd == "graph") showDirectedGraph("graph.png");
-        else if(cmd == "bridge") {
-            string word1, word2;
-            cin >> word1 >> word2;
-            cerr << queryBridgeWords(word1, word2) << endl;
-        }
-        else if(cmd == "generate") {
-            string path;
-            cin >> path;
-            cerr << generateNewText(path) << endl;
-        }
-        else if(cmd == "short1") {
-            string word1, word2;
-            cin >> word1 >> word2;
+    system("clear");
+    std::cerr << "Introduction: " << std::endl;
+    std::cerr << "graph: Show digraph" << std::endl;
+    std::cerr << "bridge word1 word2: Look for bridge words" << std::endl;
+    std::cerr << "generate path: generate new content "
+                 "according to bridge words" << std::endl;
+    std::cerr << "short1 word1 word2: Look for the shortest path "
+                 "between two words" << std::endl;
+    std::cerr << "short2 word: Look for the shortest path "
+                 "from the word to other words" << std::endl;
+    std::cerr << "walk: Random walk" << std::endl;
+    std::cerr << "exit: Exit" << std::endl;
+    // std::cerr << "åŠŸèƒ½ä»‹ç»ï¼š" << std::endl;
+    // std::cerr << "graph: æŸ¥çœ‹æœ‰å‘å›¾" << std::endl;
+    // std::cerr << "bridge word1 word2: æŸ¥è¯¢æ¡¥æŽ¥è¯" << std::endl;
+    // std::cerr << "generate path: æ ¹æ®æ¡¥æŽ¥è¯ç”Ÿæˆæ–‡æœ¬" << std::endl;
+    // std::cerr << "short1 word1 word2: "\
+                    "æŸ¥è¯¢ä¸¤ä¸ªå•è¯ä¹‹é—´çš„æœ€çŸ­è·¯å¾„" << std::endl;
+    // std::cerr << "short2 word: æŸ¥è¯¢å•è¯åˆ°æ‰€æœ‰å•è¯çš„æœ€çŸ­è·¯å¾„" << std::endl;
+    // std::cerr << "walk: éšæœºæ¸¸èµ°" << std::endl;
+    // std::cerr << "exit: é€€å‡º" << std::endl;
+
+    std::string cmd;
+    while (1) {
+        std::cerr << ">>> ";
+        std::cin >> cmd;
+        if (cmd == "exit") {
+            break;
+        } else if (cmd == "graph") {
+            showDirectedGraph("graph.png");
+        } else if (cmd == "bridge") {
+            std::string word1, word2;
+            std::cin >> word1 >> word2;
+            std::cerr << queryBridgeWords(word1, word2) << std::endl;
+        } else if (cmd == "generate") {
+            std::string genPath;
+            std::cin >> genPath;
+            std::cerr << generateNewText(genPath) << std::endl;
+        } else if (cmd == "short1") {
+            std::string word1, word2;
+            std::cin >> word1 >> word2;
             calcShortestPath1(word1, word2);
-        }
-        else if(cmd == "short2") {
-            string word;
-            cin >> word;
+        } else if (cmd == "short2") {
+            std::string word;
+            std::cin >> word;
             calcShortestPath2(word);
-        }
-        else if(cmd == "walk") {
-            cerr << randomWalk() << endl;
-        }
-        else {
-            cerr << "Command \'" << cmd << "\' not found" << endl;
+        } else if (cmd == "walk") {
+            std::cerr << randomWalk() << std::endl;
+        } else {
+            std::cerr << "Command \'" << cmd << "\' not found" << std::endl;
         }
     }
     return 0;

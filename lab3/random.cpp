@@ -1,9 +1,10 @@
-#include <bits/stdc++.h>
-#include "random.h"
+// Copyright 2024 wangxuye
 
-mt19937 randint((unsigned)time(NULL));
+#include "include/random.h"
+
+std::mt19937 randint((unsigned)time(NULL));
 int randomInt(int l, int r) {
-    // 获得服从均匀分布的随机数，区间为 [l, r]
-    uniform_int_distribution<int> dis(l, r);
+    // 鑾峰緱鏈嶄粠鍧囧寑鍒嗗竷鐨勯殢鏈烘暟锛屽尯闂翠负 [l, r]
+    std::uniform_int_distribution<int> dis(l, r);
     return dis(randint);
 }
