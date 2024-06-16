@@ -5,14 +5,13 @@
 
 extern Graph G;
 
-int main(int argc, char* argv[]) {
-    if (argc != 1) {
+int main(int argc,
+    const char* argv[]) {
+    if (argc != 2) {
         perror("parameters error\n");
         exit(1);
     }
-    std::cerr << "Please input the path of the content file: ";
-    // std::cerr << "请输入文本串所在文件路径：";
-    std::string path; std::cin >> path;
+    std::string path = argv[1];
     while (1) {
         std::ifstream file(path);
         if (file.is_open()) break;
@@ -76,3 +75,5 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
+
+// cppcheck --enable=all --suppress=missingInclude --suppress=unusedFunction *.cpp ./include/*.h
